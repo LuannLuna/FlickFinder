@@ -1,6 +1,8 @@
 import SwiftUI
 
 struct HomeView: View {
+    @State private var selectedTab: Tab = .home
+    
     var body: some View {
         VStack(spacing: 0) {
             // Top navigation
@@ -64,30 +66,7 @@ struct HomeView: View {
             Spacer()
 
             // Bottom Tab Bar
-            HStack {
-                TabBarItem(
-                    icon: "house.fill",
-                    label: "Home",
-                    isSelected: true
-                )
-                TabBarItem(
-                    icon: "square.grid.2x2",
-                    label: "Browse",
-                    isSelected: false
-                )
-                TabBarItem(
-                    icon: "circle",
-                    label: "Watch",
-                    isSelected: false
-                )
-                TabBarItem(
-                    icon: "person.crop.circle",
-                    label: "Profile",
-                    isSelected: false
-                )
-            }
-            .padding()
-            .background(Color.black.opacity(0.8))
+            CustomTabView(selectedTab: $selectedTab)
         }
         .background(
             Color.black
