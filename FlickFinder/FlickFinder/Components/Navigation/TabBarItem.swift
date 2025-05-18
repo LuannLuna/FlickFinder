@@ -11,15 +11,16 @@ struct TabBarItem: View {
     let icon: String
     let label: String
     var isSelected: Bool
+    @ObservedObject private var themeManager = ThemeManager.shared
 
     var body: some View {
         VStack {
             Image(systemName: icon)
-                .foregroundColor(isSelected ? .yellow : .gray)
+                .foregroundColor(isSelected ? themeManager.accentColor : themeManager.secondaryColor)
             if !label.isEmpty {
                 Text(label)
                     .font(.caption)
-                    .foregroundColor(isSelected ? .yellow : .gray)
+                    .foregroundColor(isSelected ? themeManager.accentColor : themeManager.secondaryColor)
             }
         }
         .frame(maxWidth: .infinity)

@@ -91,12 +91,6 @@ private struct SearchView: View {
     }
 }
 
-struct ProfileView: View {
-    var body: some View {
-        Text("Profile")
-    }
-}
-
 private struct SettingsView: View {
     var body: some View {
         Text("Settings")
