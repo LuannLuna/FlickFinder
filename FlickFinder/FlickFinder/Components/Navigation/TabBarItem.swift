@@ -1,3 +1,10 @@
+//
+//  TabBarItem.swift
+//  FlickFinder
+//
+//  Created by Luann Luna on 17/05/25.
+//
+
 import SwiftUI
 
 struct TabBarItem: View {
