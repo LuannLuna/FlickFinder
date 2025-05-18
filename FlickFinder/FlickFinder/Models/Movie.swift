@@ -21,7 +21,7 @@ struct MovieResponse: Codable {
     }
 }
 
-struct Movie: Codable, Identifiable {
+struct Movie: Codable, Identifiable, Equatable, Hashable {
     let id: Int
     let title: String
     let overview: String
@@ -63,4 +63,4 @@ struct Movie: Codable, Identifiable {
         guard let backdropPath else { return nil }
         return URL(string: "https://image.tmdb.org/t/p/original\(backdropPath)")
     }
-} 
+}

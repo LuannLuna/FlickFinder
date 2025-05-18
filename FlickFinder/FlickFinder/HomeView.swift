@@ -1,7 +1,56 @@
 import SwiftUI
 
 struct HomeView: View {
-    @State private var selectedTab: Tab = .home
+    @StateObject private var router = NavigationRouter()
+    
+    var body: some View {
+        TabView(selection: $router.selectedTab) {
+            HomeTabView()
+                .tabItem {
+                    TabBarItem(
+                        icon: Tab.home.icon,
+                        label: Tab.home.label,
+                        isSelected: router.selectedTab == .home
+                    )
+                }
+                .tag(Tab.home)
+            
+            BrowseView()
+                .tabItem {
+                    TabBarItem(
+                        icon: Tab.browse.icon,
+                        label: Tab.browse.label,
+                        isSelected: router.selectedTab == .browse
+                    )
+                }
+                .tag(Tab.browse)
+            
+            WatchView()
+                .tabItem {
+                    TabBarItem(
+                        icon: Tab.watch.icon,
+                        label: Tab.watch.label,
+                        isSelected: router.selectedTab == .watch
+                    )
+                }
+                .tag(Tab.watch)
+            
+            ProfileView()
+                .tabItem {
+                    TabBarItem(
+                        icon: Tab.profile.icon,
+                        label: Tab.profile.label,
+                        isSelected: router.selectedTab == .profile
+                    )
+                }
+                .tag(Tab.profile)
+        }
+        .withNavigation(router: router)
+    }
+}
+
+struct HomeTabView: View {
+    @EnvironmentObject private var router: NavigationRouter
     
     var body: some View {
         VStack(spacing: 0) {
@@ -18,6 +67,9 @@ struct HomeView: View {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.black)
                     )
+                    .onTapGesture {
+                        router.push(.search(""))
+                    }
             }
             .padding()
 
@@ -37,6 +89,25 @@ struct HomeView: View {
                 HStack(spacing: 16) {
                     ForEach(0..<5) { _ in
                         FeaturedCardView()
+                            .onTapGesture {
+                                // TODO: Replace with actual movie data
+                                router.push(.movieDetail(Movie(
+                                    id: 1,
+                                    title: "Sample Movie",
+                                    overview: "Overview",
+                                    posterPath: nil,
+                                    backdropPath: nil,
+                                    voteAverage: 0,
+                                    voteCount: 0,
+                                    releaseDate: "",
+                                    popularity: 0,
+                                    originalTitle: "",
+                                    originalLanguage: "",
+                                    genreIds: [],
+                                    adult: false,
+                                    video: false
+                                )))
+                            }
                     }
                 }
                 .padding()
@@ -64,16 +135,27 @@ struct HomeView: View {
             }
 
             Spacer()
-
-            // Bottom Tab Bar
-            CustomTabView(selectedTab: $selectedTab)
         }
-        .background(
-            Color.black
-                .edgesIgnoringSafeArea(.all)
-        )
+        .background(Color.black.edgesIgnoringSafeArea(.all))
     }
 }
+
+// MARK: - Preview Views
+#if DEBUG
+struct BrowseView: View {
+    var body: some View {
+        Text("Browse")
+            .background(Color.black.edgesIgnoringSafeArea(.all))
+    }
+}
+
+struct WatchView: View {
+    var body: some View {
+        Text("Watch")
+            .background(Color.black.edgesIgnoringSafeArea(.all))
+    }
+}
+#endif
 
 #Preview {
     HomeView()
