@@ -58,7 +58,6 @@ struct HomeTabView: View {
             HStack {
                 Text("Home")
                     .font(.largeTitle.bold())
-                    .foregroundColor(.white)
                 Spacer()
                 Circle()
                     .fill(Color.yellow)
@@ -136,7 +135,6 @@ struct HomeTabView: View {
 
             Spacer()
         }
-        .background(Color.black.edgesIgnoringSafeArea(.all))
     }
 }
 
