@@ -18,9 +18,13 @@ protocol RouterProtocol: ObservableObject {
 }
 
 @MainActor
-final class NavigationRouter: RouterProtocol {
+final class NavigationRouter: RouterProtocol, ObservableObject {
     @Published var navigationPath = NavigationPath()
     @Published var selectedTab: Tab = .home
+    
+    static let shared = NavigationRouter()
+    
+    init() {}
     
     func push(_ route: Route) {
         navigationPath.append(route)
@@ -42,8 +46,9 @@ final class NavigationRouter: RouterProtocol {
 
 // MARK: - View Extension
 extension View {
-    func withNavigation(router: RouterProtocol) -> some View {
-        NavigationStack(path: Binding(
+    func withNavigation() -> some View {
+        let router = NavigationRouter.shared
+        return NavigationStack(path: Binding(
             get: { router.navigationPath },
             set: { router.navigationPath = $0 }
         )) {
@@ -64,6 +69,7 @@ extension View {
                 }
             }
         }
+        .environmentObject(router)
     }
 }
 
@@ -71,39 +77,48 @@ extension View {
 #if DEBUG
 extension NavigationRouter {
     static var preview: NavigationRouter {
-        let router = NavigationRouter()
-        return router
+        NavigationRouter()
     }
 }
 
 // Preview Views
 private struct MovieDetailView: View {
+    @EnvironmentObject private var router: NavigationRouter
     let movie: Movie
+    
     var body: some View {
         Text(movie.title)
     }
 }
 
 private struct SearchView: View {
+    @EnvironmentObject private var router: NavigationRouter
     let query: String
+    
     var body: some View {
         Text("Search: \(query)")
     }
 }
 
 private struct SettingsView: View {
+    @EnvironmentObject private var router: NavigationRouter
+    
     var body: some View {
         Text("Settings")
     }
 }
 
 private struct WatchlistView: View {
+    @EnvironmentObject private var router: NavigationRouter
+    
     var body: some View {
         Text("Watchlist")
     }
 }
 
 private struct FavoritesView: View {
+    @EnvironmentObject private var router: NavigationRouter
+    
     var body: some View {
         Text("Favorites")
     }

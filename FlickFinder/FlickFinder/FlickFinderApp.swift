@@ -23,9 +23,15 @@ struct FlickFinderApp: App {
         }
     }()
 
+    @StateObject private var router = NavigationRouter()
+
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            NavigationStack(
+                path: $router.navigationPath) {
+                    HomeView()
+                        .environmentObject(router)
+                }
         }
         .modelContainer(sharedModelContainer)
     }
