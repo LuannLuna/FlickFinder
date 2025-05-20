@@ -99,13 +99,12 @@ private struct MovieDetailView: View {
     let movie: Movie
     
     var body: some View {
-        VStack {
-            Text(movie.title)
-            
-            NavigationButton("Go Back") {
-                await router.pop()
+        Text(movie.title)
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                NavigationBackButton()
             }
-        }
     }
 }
 
@@ -114,13 +113,12 @@ private struct SearchView: View {
     let query: String
     
     var body: some View {
-        VStack {
-            Text("Search: \(query)")
-            
-            NavigationButton("Go Back") {
-                await router.pop()
+        Text("Search: \(query)")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                NavigationBackButton()
             }
-        }
     }
 }
 
@@ -128,13 +126,12 @@ private struct SettingsView: View {
     @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        VStack {
-            Text("Settings")
-            
-            NavigationButton("Go Back") {
-                await router.pop()
+        Text("Settings")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                NavigationBackButton()
             }
-        }
     }
 }
 
@@ -142,13 +139,12 @@ private struct WatchlistView: View {
     @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        VStack {
-            Text("Watchlist")
-            
-            NavigationButton("Go Back") {
-                await router.pop()
+        Text("Watchlist")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                NavigationBackButton()
             }
-        }
     }
 }
 
@@ -156,13 +152,12 @@ private struct FavoritesView: View {
     @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        VStack {
-            Text("Favorites")
-            
-            NavigationButton("Go Back") {
-                await router.pop()
+        Text("Favorites")
+            .navigationBarTitleDisplayMode(.inline)
+            .navigationBarBackButtonHidden()
+            .toolbar {
+                NavigationBackButton()
             }
-        }
     }
 }
 #endif 
