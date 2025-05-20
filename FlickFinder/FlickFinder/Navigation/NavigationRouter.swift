@@ -11,10 +11,10 @@ protocol RouterProtocol: ObservableObject {
     var navigationPath: NavigationPath { get set }
     var selectedTab: Tab { get set }
     
-    func push(_ route: Route)
-    func pop()
-    func popToRoot()
-    func switchTab(to tab: Tab)
+    func push(_ route: Route) async
+    func pop() async
+    func popToRoot() async
+    func switchTab(to tab: Tab) async
 }
 
 @MainActor
@@ -22,23 +22,36 @@ final class NavigationRouter: RouterProtocol, ObservableObject {
     @Published var navigationPath = NavigationPath()
     @Published var selectedTab: Tab = .home
     
+    private let analytics: AnalyticsMiddleware
+    private var navigationStack: [Route] = []
+
     static let shared = NavigationRouter()
     
-    init() {}
-    
-    func push(_ route: Route) {
-        navigationPath.append(route)
+    init(analytics: AnalyticsMiddleware = AnalyticsManager.shared) {
+        self.analytics = analytics
     }
     
+    func push(_ route: Route) {
+        navigationStack.append(route)
+        navigationPath.append(route)
+        analytics.track(NavigationEvent.screenView(route: route))
+    }
+
+    @MainActor
     func pop() {
+        let route = navigationStack.removeLast()
+        analytics.track(NavigationEvent.backNavigation(from: route, to: navigationStack.last))
         navigationPath.removeLast()
     }
     
     func popToRoot() {
+        let route = navigationStack.removeLast()
+        analytics.track(NavigationEvent.backNavigation(from: route, to: nil))
         navigationPath.removeLast(navigationPath.count)
     }
     
     func switchTab(to tab: Tab) {
+        analytics.track(NavigationEvent.tabChange(from: selectedTab, to: tab))
         selectedTab = tab
         popToRoot()
     }
@@ -77,7 +90,7 @@ extension View {
 #if DEBUG
 extension NavigationRouter {
     static var preview: NavigationRouter {
-        NavigationRouter()
+        NavigationRouter(analytics: AnalyticsManager.preview)
     }
 }
 
