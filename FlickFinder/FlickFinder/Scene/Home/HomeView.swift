@@ -1,58 +1,61 @@
 import SwiftUI
 
 struct HomeView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @State var router = NavigationRouter()
     @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
-        TabView(selection: $router.selectedTab) {
-            HomeTabView()
-                .tabItem {
-                    TabBarItem(
-                        icon: Tab.home.icon,
-                        label: Tab.home.label,
-                        isSelected: router.selectedTab == .home
-                    )
-                }
-                .tag(Tab.home)
-            
-            BrowseView()
-                .tabItem {
-                    TabBarItem(
-                        icon: Tab.browse.icon,
-                        label: Tab.browse.label,
-                        isSelected: router.selectedTab == .browse
-                    )
-                }
-                .tag(Tab.browse)
-            
-            WatchView()
-                .tabItem {
-                    TabBarItem(
-                        icon: Tab.watch.icon,
-                        label: Tab.watch.label,
-                        isSelected: router.selectedTab == .watch
-                    )
-                }
-                .tag(Tab.watch)
-            
-            ProfileView()
-                .tabItem {
-                    TabBarItem(
-                        icon: Tab.profile.icon,
-                        label: Tab.profile.label,
-                        isSelected: router.selectedTab == .profile
-                    )
-                }
-                .tag(Tab.profile)
+        NavigationStack(path: $router.navigationPath) {
+            TabView(selection: $router.selectedTab) {
+                HomeTabView()
+                    .tabItem {
+                        TabBarItem(
+                            icon: Tab.home.icon,
+                            label: Tab.home.label,
+                            isSelected: router.selectedTab == .home
+                        )
+                    }
+                    .tag(Tab.home)
+
+                BrowseView()
+                    .tabItem {
+                        TabBarItem(
+                            icon: Tab.browse.icon,
+                            label: Tab.browse.label,
+                            isSelected: router.selectedTab == .browse
+                        )
+                    }
+                    .tag(Tab.browse)
+
+                WatchView()
+                    .tabItem {
+                        TabBarItem(
+                            icon: Tab.watch.icon,
+                            label: Tab.watch.label,
+                            isSelected: router.selectedTab == .watch
+                        )
+                    }
+                    .tag(Tab.watch)
+
+                ProfileView()
+                    .tabItem {
+                        TabBarItem(
+                            icon: Tab.profile.icon,
+                            label: Tab.profile.label,
+                            isSelected: router.selectedTab == .profile
+                        )
+                    }
+                    .tag(Tab.profile)
+            }
+            .withNavigation(router: router)
+            .withTheme()
         }
-        .withNavigation()
-        .withTheme()
+        .environment(router)
     }
 }
 
 struct HomeTabView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
@@ -71,7 +74,9 @@ struct HomeTabView: View {
                             .foregroundColor(themeManager.backgroundColor)
                     )
                     .onTapGesture {
-                        router.push(.search(""))
+                        Task {
+                            await router.push(.search(""))
+                        }
                     }
             }
             .padding()
@@ -94,22 +99,24 @@ struct HomeTabView: View {
                         FeaturedCardView()
                             .onTapGesture {
                                 // TODO: Replace with actual movie data
-                                router.push(.movieDetail(Movie(
-                                    id: 1,
-                                    title: "Sample Movie",
-                                    overview: "Overview",
-                                    posterPath: nil,
-                                    backdropPath: nil,
-                                    voteAverage: 0,
-                                    voteCount: 0,
-                                    releaseDate: "",
-                                    popularity: 0,
-                                    originalTitle: "",
-                                    originalLanguage: "",
-                                    genreIds: [],
-                                    adult: false,
-                                    video: false
-                                )))
+                                Task {
+                                    await router.push(.movieDetail(Movie(
+                                        id: 1,
+                                        title: "Sample Movie",
+                                        overview: "Overview",
+                                        posterPath: nil,
+                                        backdropPath: nil,
+                                        voteAverage: 0,
+                                        voteCount: 0,
+                                        releaseDate: "",
+                                        popularity: 0,
+                                        originalTitle: "",
+                                        originalLanguage: "",
+                                        genreIds: [],
+                                        adult: false,
+                                        video: false
+                                    )))
+                                }
                             }
                     }
                 }
@@ -139,24 +146,26 @@ struct HomeTabView: View {
 
             Spacer()
         }
-        .withNavigation()
+        .withNavigation(router: router)
     }
 }
 
 // MARK: - Preview Views
 #if DEBUG
 struct BrowseView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     @ObservedObject private var themeManager = ThemeManager.shared
     
     var body: some View {
         Button {
-            router.push(.watchlist)
+            Task {
+                await router.push(.watchlist)
+            }
         } label: {
             Text("Browse")
                 .foregroundColor(themeManager.textColor)
         }
-        .withNavigation()
+        .withNavigation(router: router)
     }
 }
 

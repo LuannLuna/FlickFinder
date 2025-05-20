@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-enum Tab: Int {
+enum Tab: Int, Hashable {
     case home
     case browse
     case watch

@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-protocol RouterProtocol: ObservableObject {
+protocol RouterProtocol {
     var navigationPath: NavigationPath { get set }
     var selectedTab: Tab { get set }
     
@@ -17,51 +17,50 @@ protocol RouterProtocol: ObservableObject {
     func switchTab(to tab: Tab) async
 }
 
-@MainActor
-final class NavigationRouter: RouterProtocol, ObservableObject {
-    @Published var navigationPath = NavigationPath()
-    @Published var selectedTab: Tab = .home
+@Observable
+final class NavigationRouter: RouterProtocol {
+    var navigationPath = NavigationPath()
+    var selectedTab: Tab = .home
     
     private let analytics: AnalyticsMiddleware
     private var navigationStack: [Route] = []
-
-    static let shared = NavigationRouter()
     
     init(analytics: AnalyticsMiddleware = AnalyticsManager.shared) {
         self.analytics = analytics
     }
     
-    func push(_ route: Route) {
+    func push(_ route: Route) async {
         navigationStack.append(route)
         navigationPath.append(route)
         analytics.track(NavigationEvent.screenView(route: route))
     }
-
-    @MainActor
-    func pop() {
+    
+    func pop() async {
+        guard !navigationStack.isEmpty else { return }
         let route = navigationStack.removeLast()
         analytics.track(NavigationEvent.backNavigation(from: route, to: navigationStack.last))
         navigationPath.removeLast()
     }
     
-    func popToRoot() {
+    func popToRoot() async {
+        guard !navigationStack.isEmpty else { return }
         let route = navigationStack.removeLast()
         analytics.track(NavigationEvent.backNavigation(from: route, to: nil))
+        navigationStack.removeAll()
         navigationPath.removeLast(navigationPath.count)
     }
     
-    func switchTab(to tab: Tab) {
+    func switchTab(to tab: Tab) async {
         analytics.track(NavigationEvent.tabChange(from: selectedTab, to: tab))
         selectedTab = tab
-        popToRoot()
+        await popToRoot()
     }
 }
 
 // MARK: - View Extension
 extension View {
-    func withNavigation() -> some View {
-        let router = NavigationRouter.shared
-        return NavigationStack(path: Binding(
+    func withNavigation(router: NavigationRouter) -> some View {
+        NavigationStack(path: Binding(
             get: { router.navigationPath },
             set: { router.navigationPath = $0 }
         )) {
@@ -82,7 +81,7 @@ extension View {
                 }
             }
         }
-        .environmentObject(router)
+        .environment(router)
     }
 }
 
@@ -96,44 +95,74 @@ extension NavigationRouter {
 
 // Preview Views
 private struct MovieDetailView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     let movie: Movie
     
     var body: some View {
-        Text(movie.title)
+        VStack {
+            Text(movie.title)
+            
+            NavigationButton("Go Back") {
+                await router.pop()
+            }
+        }
     }
 }
 
 private struct SearchView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     let query: String
     
     var body: some View {
-        Text("Search: \(query)")
+        VStack {
+            Text("Search: \(query)")
+            
+            NavigationButton("Go Back") {
+                await router.pop()
+            }
+        }
     }
 }
 
 private struct SettingsView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        Text("Settings")
+        VStack {
+            Text("Settings")
+            
+            NavigationButton("Go Back") {
+                await router.pop()
+            }
+        }
     }
 }
 
 private struct WatchlistView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        Text("Watchlist")
+        VStack {
+            Text("Watchlist")
+            
+            NavigationButton("Go Back") {
+                await router.pop()
+            }
+        }
     }
 }
 
 private struct FavoritesView: View {
-    @EnvironmentObject private var router: NavigationRouter
+    @Environment(NavigationRouter.self) private var router: NavigationRouter
     
     var body: some View {
-        Text("Favorites")
+        VStack {
+            Text("Favorites")
+            
+            NavigationButton("Go Back") {
+                await router.pop()
+            }
+        }
     }
 }
 #endif 
