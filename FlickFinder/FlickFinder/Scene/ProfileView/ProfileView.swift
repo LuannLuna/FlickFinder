@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ProfileView: View {
-    @ObservedObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         Button(action: themeManager.toggleTheme) {
@@ -21,5 +21,6 @@ struct ProfileView: View {
 #if DEBUG
 #Preview {
     ProfileView()
+        .environmentObject(ThemeManager.shared)
 }
 #endif

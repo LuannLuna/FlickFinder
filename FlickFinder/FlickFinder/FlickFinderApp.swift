@@ -23,11 +23,14 @@ struct FlickFinderApp: App {
         }
     }()
 
+    let service = MovieService.preview
 
     var body: some Scene {
         WindowGroup {
-            HomeView()
+            RootView()
         }
+        .environment(service)
+        .environmentObject(ThemeManager.shared)
         .modelContainer(sharedModelContainer)
     }
 }

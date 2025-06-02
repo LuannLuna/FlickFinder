@@ -11,7 +11,7 @@ struct TabBarItem: View {
     let icon: String
     let label: String
     var isSelected: Bool
-    @ObservedObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         VStack {
@@ -36,4 +36,5 @@ struct TabBarItem: View {
     }
     .padding()
     .background(Color.black)
-} 
+    .environmentObject(ThemeManager.shared)
+}

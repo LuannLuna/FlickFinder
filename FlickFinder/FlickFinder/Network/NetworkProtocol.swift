@@ -13,6 +13,8 @@ protocol NetworkProtocol {
 
 protocol MovieServiceProtocol {
     func fetchMovies(page: Int, genres: [Int], sortBy: String) async throws -> MovieResponse
+    func fetchPopularMovies(page: Int) async throws -> MovieResponse
+    func fetchNowPlayingMovies(page: Int) async throws -> MovieResponse
 }
 
 extension MovieServiceProtocol {

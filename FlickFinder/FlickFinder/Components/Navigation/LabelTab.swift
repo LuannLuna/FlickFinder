@@ -10,7 +10,7 @@ import SwiftUI
 struct LabelTab: View {
     let title: String
     var isSelected: Bool = false
-    @ObservedObject private var themeManager = ThemeManager.shared
+    @EnvironmentObject private var themeManager: ThemeManager
 
     var body: some View {
         Text(title)
@@ -29,4 +29,5 @@ struct LabelTab: View {
 #Preview {
     LabelTab(title: "Popular", isSelected: true)
         .withTheme()
+        .environmentObject(ThemeManager.shared)
 }

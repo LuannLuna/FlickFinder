@@ -7,6 +7,7 @@
 
 import Foundation
 
+@Observable
 final class MovieService: MovieServiceProtocol {
     private let network: NetworkProtocol
     private let cache: CacheServiceProtocol
@@ -29,6 +30,22 @@ final class MovieService: MovieServiceProtocol {
         return try await network.fetch(
             from: "/discover/movie",
             with: parameters,
+            responseType: MovieResponse.self
+        )
+    }
+    
+    func fetchPopularMovies(page: Int = 1) async throws -> MovieResponse {
+        return try await network.fetch(
+            from: "/movie/popular",
+            with: ["page": page],
+            responseType: MovieResponse.self
+        )
+    }
+    
+    func fetchNowPlayingMovies(page: Int = 1) async throws -> MovieResponse {
+        return try await network.fetch(
+            from: "/movie/now_playing",
+            with: ["page": page],
             responseType: MovieResponse.self
         )
     }
