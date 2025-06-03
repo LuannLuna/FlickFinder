@@ -9,10 +9,7 @@ struct HomeTabScreen: View {
     @Environment(MovieService.self) private var movieService: MovieService
     @State private var isLoading = false
 
-    @State private var popularMovies: [Movie] = []
-    @State private var nowPlayingMovies: [Movie] = []
-    @State private var upcomingMovies: [Movie] = []
-    @State private var topRatedMovies: [Movie] = []
+    @State private var moviesByTab: [Tab: [Movie]] = [:]
     @State private var error: Error?
     @State private var selectedTab: Tab = .home
 
@@ -103,21 +100,14 @@ struct HomeTabScreen: View {
             VStack(spacing: 32) {
                 MovieGrid(
                     title: selectedTab.section,
-                    movies:  {
-                        switch selectedTab {
-                            case .home: popularMovies
-                            case .newIn: nowPlayingMovies
-                            case .upcoming: upcomingMovies
-                            case .topRated: topRatedMovies
-                        }
-                    }(),
+                    movies: moviesByTab[selectedTab] ?? [],
                     onMovieTap: showMovieDetail,
                     cardSize: .large
                 )
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 16) {
-                        ForEach(nowPlayingMovies.filter { $0.posterPath.isNotNil }) { movie in
+                        ForEach(moviesByTab[selectedTab]?.filter { $0.posterPath.isNotNil } ?? []) { movie in
                             FeaturedCardView(
                                 url: movie.posterURL,
                                 title: movie.title,
@@ -162,21 +152,21 @@ extension HomeTabScreen {
         }
     }
 
-    func loadData() async {
+    private func loadData() async {
         isLoading = true
         defer { isLoading = false }
         do {
             async let popularResponse = movieService.fetchPopularMovies()
-            popularMovies = try await popularResponse.results
-
             async let nowPlayingResponse = movieService.fetchNowPlayingMovies()
-            nowPlayingMovies = try await nowPlayingResponse.results
-
             async let upcomingResponse = movieService.fetchUpcomingMovies()
-            upcomingMovies = try await upcomingResponse.results
-
             async let topRatedResponse = movieService.fetchTopRatedMovies()
-            topRatedMovies = try await topRatedResponse.results
+
+            moviesByTab = [
+                .home: try await popularResponse.results,
+                .newIn: try await nowPlayingResponse.results,
+                .upcoming: try await upcomingResponse.results,
+                .topRated: try await topRatedResponse.results
+            ]
         } catch {
             self.error = error
             print("Failed to fetch movies: \(error.localizedDescription)")
