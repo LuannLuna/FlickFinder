@@ -17,8 +17,8 @@ struct HomeTabScreen: View {
     enum Tab: String, CaseIterable {
         case home = "Popular"
         case newIn = "New in"
-        case action = "Action"
-        case character = "Character"
+        case upcoming = "Upcoming"
+        case topRated = "Top Rated"
 
         var section: String {
             switch self {
@@ -28,7 +28,11 @@ struct HomeTabScreen: View {
                 case .newIn:
                     "Now in Theaters"
 
-                default: ""
+                case .upcoming:
+                    "Upcoming Movies"
+
+                case .topRated:
+                    "Top Rated Movies"
             }
         }
     }
