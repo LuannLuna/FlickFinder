@@ -155,22 +155,28 @@ extension HomeTabScreen {
     private func loadData() async {
         isLoading = true
         defer { isLoading = false }
-        do {
-            async let popularResponse = movieService.fetchPopularMovies()
-            async let nowPlayingResponse = movieService.fetchNowPlayingMovies()
-            async let upcomingResponse = movieService.fetchUpcomingMovies()
-            async let topRatedResponse = movieService.fetchTopRatedMovies()
 
-            moviesByTab = [
-                .home: try await popularResponse.results,
-                .newIn: try await nowPlayingResponse.results,
-                .upcoming: try await upcomingResponse.results,
-                .topRated: try await topRatedResponse.results
-            ]
-        } catch {
-            self.error = error
-            print("Failed to fetch movies: \(error.localizedDescription)")
+        // Create a dictionary of async tasks for each tab
+        let tasks: [Tab: () async throws -> [Movie]] = [
+            .home: { try await movieService.fetchPopularMovies().results },
+            .newIn: { try await movieService.fetchNowPlayingMovies().results },
+            .upcoming: { try await movieService.fetchUpcomingMovies().results },
+            .topRated: { try await movieService.fetchTopRatedMovies().results }
+        ]
+
+        // Execute all tasks concurrently and collect results
+        var newMoviesByTab: [Tab: [Movie]] = [:]
+        for (tab, task) in tasks {
+            do {
+                newMoviesByTab[tab] = try await task()
+            } catch {
+                print("Failed to fetch movies for \(tab.rawValue): \(error.localizedDescription)")
+                newMoviesByTab[tab] = []
+            }
         }
+
+        // Update the state with all results
+        moviesByTab = newMoviesByTab
     }
 }
 
