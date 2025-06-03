@@ -37,6 +37,7 @@ struct MovieGrid: View {
 
 // MARK: - Preview
 #if DEBUG
+
 struct MovieGrid_Previews: PreviewProvider {
     static var previews: some View {
         let movies = Array(

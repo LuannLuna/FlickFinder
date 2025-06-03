@@ -11,6 +11,8 @@ struct HomeTabScreen: View {
 
     @State private var popularMovies: [Movie] = []
     @State private var nowPlayingMovies: [Movie] = []
+    @State private var upcomingMovies: [Movie] = []
+    @State private var topRatedMovies: [Movie] = []
     @State private var error: Error?
     @State private var selectedTab: Tab = .home
 
@@ -101,14 +103,21 @@ struct HomeTabScreen: View {
             VStack(spacing: 32) {
                 MovieGrid(
                     title: selectedTab.section,
-                    movies: selectedTab == .home ? popularMovies : nowPlayingMovies,
+                    movies:  {
+                        switch selectedTab {
+                            case .home: popularMovies
+                            case .newIn: nowPlayingMovies
+                            case .upcoming: upcomingMovies
+                            case .topRated: topRatedMovies
+                        }
+                    }(),
                     onMovieTap: showMovieDetail,
                     cardSize: .large
                 )
 
                 ScrollView(.horizontal, showsIndicators: false) {
                     HStack(spacing: 16) {
-                        ForEach(nowPlayingMovies.filter { $0.posterPath != nil }) { movie in
+                        ForEach(nowPlayingMovies.filter { $0.posterPath.isNotNil }) { movie in
                             FeaturedCardView(
                                 url: movie.posterURL,
                                 title: movie.title,
@@ -135,24 +144,24 @@ struct HomeTabScreen: View {
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .padding(.vertical, 100)
     }
-    
-    // MARK: - Actions
-    
+}
+
+// MARK: - Actions
+
+private
+extension HomeTabScreen {
     private func showSearch() {
         Task {
             await router.push(.search(""))
         }
     }
-    
+
     private func showMovieDetail(_ movie: Movie) {
         Task {
             await router.push(.movieDetail(movie))
         }
     }
-}
 
-private
-extension HomeTabScreen {
     func loadData() async {
         isLoading = true
         defer { isLoading = false }
@@ -162,6 +171,12 @@ extension HomeTabScreen {
 
             async let nowPlayingResponse = movieService.fetchNowPlayingMovies()
             nowPlayingMovies = try await nowPlayingResponse.results
+
+            async let upcomingResponse = movieService.fetchUpcomingMovies()
+            upcomingMovies = try await upcomingResponse.results
+
+            async let topRatedResponse = movieService.fetchTopRatedMovies()
+            topRatedMovies = try await topRatedResponse.results
         } catch {
             self.error = error
             print("Failed to fetch movies: \(error.localizedDescription)")

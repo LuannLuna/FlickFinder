@@ -49,6 +49,22 @@ final class MovieService: MovieServiceProtocol {
             responseType: MovieResponse.self
         )
     }
+
+    func fetchUpcomingMovies(page: Int = 1) async throws -> MovieResponse {
+        return try await network.fetch(
+            from: "/movie/upcoming",
+            with: ["page": page],
+            responseType: MovieResponse.self
+        )
+    }
+
+    func fetchTopRatedMovies(page: Int = 1) async throws -> MovieResponse {
+        return try await network.fetch(
+            from: "/movie/top_rated",
+            with: ["page": page],
+            responseType: MovieResponse.self
+        )
+    }
 }
 
 #if DEBUG
