@@ -19,7 +19,7 @@ struct MovieGrid: View {
                     .padding(.horizontal)
                 
                 ScrollView(.horizontal, showsIndicators: false) {
-                    HStack(spacing: 16) {
+                    HStack(alignment: .top, spacing: 16) {
                         ForEach(movies.prefix(10)) { movie in
                             MoviePosterCard(
                                 movie: movie,
