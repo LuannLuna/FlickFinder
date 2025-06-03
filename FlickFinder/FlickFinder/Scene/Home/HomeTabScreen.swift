@@ -12,13 +12,50 @@ struct HomeTabScreen: View {
     @State private var popularMovies: [Movie] = []
     @State private var nowPlayingMovies: [Movie] = []
     @State private var error: Error?
+    @State private var selectedTab: Tab = .home
+
+    enum Tab: String, CaseIterable {
+        case home = "Popular"
+        case newIn = "New in"
+        case action = "Action"
+        case character = "Character"
+
+        var section: String {
+            switch self {
+                case .home:
+                    "Popular Movies"
+
+                case .newIn:
+                    "Now in Theaters"
+
+                default: ""
+            }
+        }
+    }
 
     // MARK: - Body
     var body: some View {
         ScrollView {
             VStack(spacing: 24) {
                 headerView
+
+                // Tab bar
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 20) {
+                        ForEach(Tab.allCases, id: \.rawValue) { tab in
+                            LabelTab(title: tab.rawValue, isSelected: selectedTab == tab)
+                                .onTapGesture {
+                                    withAnimation(.easeInOut) {
+                                        selectedTab = tab
+                                    }
+                                }
+                        }
+                    }
+                    .padding(.horizontal)
+                }
+
                 contentView
+
                 Spacer()
             }
             .padding(.bottom, 24)
@@ -56,25 +93,35 @@ struct HomeTabScreen: View {
     
     @ViewBuilder
     private var contentView: some View {
-        if isLoading && popularMovies.isEmpty {
-            loadingView
-        } else {
+        ZStack(alignment: .top) {
             VStack(spacing: 32) {
-                // Popular Movies
                 MovieGrid(
-                    title: "Popular Movies",
-                    movies: popularMovies,
+                    title: selectedTab.section,
+                    movies: selectedTab == .home ? popularMovies : nowPlayingMovies,
                     onMovieTap: showMovieDetail,
                     cardSize: .large
                 )
-                
-                // Now Playing
-                MovieGrid(
-                    title: "Now in Theaters",
-                    movies: nowPlayingMovies,
-                    onMovieTap: showMovieDetail,
-                    cardSize: .medium
-                )
+
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 16) {
+                        ForEach(nowPlayingMovies.filter { $0.posterPath != nil }) { movie in
+                            FeaturedCardView(
+                                url: movie.posterURL,
+                                title: movie.title,
+                                subtitle: movie.voteAverage.description
+                            )
+                                .onTapGesture {
+                                    Task {
+                                        await router.push(.movieDetail(movie))
+                                    }
+                                }
+                        }
+                    }
+                    .padding()
+                }
+            }
+            if isLoading {
+                loadingView
             }
         }
     }
@@ -126,32 +173,6 @@ extension HomeTabScreen {
         .environment(MovieService.preview)
         .environmentObject(ThemeManager.shared)
         .environment(NavigationRouter())
-}
-
-struct BrowseView: View {
-    @Environment(NavigationRouter.self) private var router: NavigationRouter
-    @State private var themeManager = ThemeManager.shared
-
-    var body: some View {
-        Button {
-            Task {
-                await router.push(.watchlist)
-            }
-        } label: {
-            Text("Browse")
-                .foregroundColor(themeManager.textColor)
-        }
-        .withNavigation(router: router)
-    }
-}
-
-struct WatchView: View {
-    @State private var themeManager = ThemeManager.shared
-
-    var body: some View {
-        Text("Watch")
-            .foregroundColor(themeManager.textColor)
-    }
 }
 
 #endif

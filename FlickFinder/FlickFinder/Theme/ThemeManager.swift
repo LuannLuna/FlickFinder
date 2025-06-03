@@ -12,7 +12,20 @@ final class ThemeManager: ObservableObject {
     
     static let shared = ThemeManager()
     
-    private init() {}
+    private init() {
+        // Initialize with system preference if no user preference is set
+        if !UserDefaults.standard.bool(forKey: "isDarkMode") {
+            isDarkMode = getSystemDarkMode()
+        }
+    }
+    
+    private func getSystemDarkMode() -> Bool {
+        #if os(iOS)
+        return UITraitCollection.current.userInterfaceStyle == .dark
+        #else
+        return false
+        #endif
+    }
     
     var colorScheme: ColorScheme {
         isDarkMode ? .dark : .light

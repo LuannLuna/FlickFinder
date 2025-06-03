@@ -10,29 +10,31 @@ struct MoviePosterCard: View {
 
     // MARK: - Size
     enum Size {
-        case small, medium, large
-        
+        case small, medium, large, extraLarge
+
         var width: CGFloat {
             switch self {
-            case .small: return 100
-            case .medium: return 120
-            case .large: return 150
+                case .small: return 100
+                case .medium: return 120
+                case .large: return 150
+                case .extraLarge: return 180
             }
         }
-        
+
         var height: CGFloat {
             width * 1.5
         }
-        
+
         var titleFont: Font {
             switch self {
-            case .small: return .caption2
-            case .medium: return .caption
-            case .large: return .subheadline
+                case .small: return .caption2
+                case .medium: return .caption
+                case .large: return .subheadline
+                case .extraLarge: return .headline
             }
         }
     }
-    
+
     // MARK: - Body
     var body: some View {
         VStack(alignment: .leading, spacing: 4) {

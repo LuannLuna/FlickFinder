@@ -99,7 +99,10 @@ private struct MovieDetailView: View {
     let movie: Movie
     
     var body: some View {
-        Text(movie.title)
+        VStack {
+            Text(movie.title)
+            Text(movie.posterURL?.absoluteString ?? "")
+        }
             .navigationBarTitleDisplayMode(.inline)
             .navigationBarBackButtonHidden()
             .toolbar {
