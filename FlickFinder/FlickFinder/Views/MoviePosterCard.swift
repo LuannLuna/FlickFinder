@@ -50,19 +50,10 @@ struct MoviePosterCard: View {
     
     // MARK: - Subviews
     private var posterImage: some View {
-        AsyncImage(url: posterURL) { phase in
-            switch phase {
-            case .success(let image):
-                image
-                    .resizable()
-                    .aspectRatio(contentMode: .fill)
-            case .failure(_):
-                placeholderImage
-            case .empty:
-                placeholderImage
-            @unknown default:
-                placeholderImage
-            }
+        CachedAsyncImage(url: posterURL) { image in
+            image
+                .resizable()
+                .aspectRatio(contentMode: .fill)
         }
         .frame(width: size.width, height: size.height)
         .clipShape(RoundedRectangle(cornerRadius: 8))

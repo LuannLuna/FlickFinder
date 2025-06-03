@@ -14,11 +14,10 @@ struct FeaturedCardView: View {
 
     var body: some View {
         ZStack(alignment: .bottomLeading) {
-            AsyncImage(url: url) { image in
-                image.resizable()
+            CachedAsyncImage(url: url) { image in
+                image
+                    .resizable()
                     .aspectRatio(contentMode: .fill)
-            } placeholder: {
-                Color.gray.opacity(0.3)
             }
             .clipShape(RoundedRectangle(cornerRadius: 24))
 
